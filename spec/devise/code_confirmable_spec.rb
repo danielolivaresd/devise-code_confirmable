@@ -2,6 +2,6 @@
 
 RSpec.describe Devise::CodeConfirmable do
   it 'has a version number' do
-    expect(Devise::CodeConfirmable::VERSION).not_to be nil
+    expect(Devise::CodeConfirmable::VERSION).not_to be_nil
   end
 end
