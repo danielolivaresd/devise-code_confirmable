@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "code_confirmable/version"
+require_relative 'code_confirmable/version'
 
 module Devise
   module CodeConfirmable
