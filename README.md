@@ -1,28 +1,83 @@
-# Devise::CodeConfirmable
+# `Devise::CodeConfirmable`
 
-TODO: Delete this and the text below, and describe your gem
+Devise extension that adds email confirmation via a code that must be entered by the user. Based on Devise's Confirmable module, with the following differences:
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/devise/code_confirmable`. To experiment with that code, run `bin/console` for an interactive prompt.
+1. Still uses the `confirmation_token` attribute in the Devise model, but it holds a (human readable) confirmation code that is sent to the user by email.
+2. Redirects the user to the confirmation page after signing up.
+3. Mail includes a confirmation code (e.g. 019283) which must be entered in this confirmation page.
+
+    i.e. updates `ConfirmationsController#show` to not make the confirmation via `?token` param, instead only show the view and add a new `ConfirmationsController#update` which compares the user code to `confirmation_token` and confirms the record (i.e. touches `confirmed_at`)
 
 ## Installation
-
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
 
 Install the gem and add to the application's Gemfile by executing:
 
 ```bash
-bundle add UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+bundle add devise-code_confirmable
 ```
 
 If bundler is not being used to manage dependencies, install the gem by executing:
 
 ```bash
-gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+gem install devise-code_confirmable
 ```
 
 ## Usage
 
-TODO: Write usage instructions here
+<!-- TODO: Remove -->
+> **Status**: ⚠️ In early development. The following is the expected behavior but may not work yet.
+
+### Getting started
+
+Run the following installation generator.
+
+```
+rails generate devise:code_confirmable:install
+```
+
+It will:
+
+1. Add an initializer, where you can configure `Devise::CodeConfirmable` globally.
+2. Add a base locale file
+3. Generates the views (incl. mailers)
+
+### Making a Devise model `:code_confirmable`
+
+#### Columns
+
+To make a Devise model (e.g. a `User` model) `:code_confirmable`, you need it to have the confirmable columns present: (i.e. `confirmation_token`, `confirmed_at`, `confirmation_sent_at` and `unconfirmed_email` if using `:reconfirmable`).
+So make sure you uncomment the confirmable (and reconfirmable if applicable) columns from the Devise generated migration.
+
+#### Configuration
+
+Add the `:code_confirmable` module to your Devise model and **do not add `:confirmable`**.
+
+```diff
+class User < ApplicationRecord
+  devise :database_authenticatable,
+         :registerable,
+         :etc,
+-         :confirmable
++         :code_confirmable
+end
+```
+
+You can configure `Devise::CodeConfirmable` globally in the initializer or on a per-model basis like follows:
+
+```ruby
+class User < ApplicationRecord
+  devise :database_authenticatable, :registerable,
+         code_confirmable: {
+          code_alphabet: :numeric, # Default
+                       # :alphanumeric
+                       # %w[a b c 1 2 3] # Specify a custom alphabet
+          code_length: 6, # Default
+
+          # If you want to generate the codes yourself, you can use the following option, overriding the previous ones
+          code_generator: ->(record) { '445875' }
+         }
+end
+```
 
 ## Development
 
