@@ -66,16 +66,13 @@ You can configure `Devise::CodeConfirmable` globally in the initializer or on a 
 
 ```ruby
 class User < ApplicationRecord
-  devise :database_authenticatable, :registerable,
-         code_confirmable: {
-          code_alphabet: :numeric, # Default
-                       # :alphanumeric
-                       # %w[a b c 1 2 3] # Specify a custom alphabet
-          code_length: 6, # Default
+  devise :database_authenticatable, :registerable, :code_confirmable,
+         code_alphabet: (0..9), # Default, you can specify a custom one, e.g. `%w[a b c 1 2 3]`
+         code_length: 6, # Default
+         code_case_insensitive: true, # Default. Will upcase code on generation and comparison.
 
-          # If you want to generate the codes yourself, you can use the following option, overriding the previous ones
-          code_generator: ->(record) { '445875' }
-         }
+         # If you want to generate the codes yourself, you can use the following option, overriding the previous ones
+         code_generator: ->(record) { '445875' }
 end
 ```
 
